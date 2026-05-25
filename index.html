@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>簡易繳費單查詢</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 50px; text-align: center; }
+        .box { max-width: 350px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #0056b3; }
+        #msg { color: red; margin-top: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>繳費單查詢</h2>
+    <input type="password" id="idCard" placeholder="請輸入學生身分證字號" required>
+    <button onclick="checkAndDownload()">查詢繳費單</button>
+    <div id="msg"></div>
+</div>
+
+<script>
+function checkAndDownload() {
+    // 1. 取得家長輸入的身分證字號，並自動轉大寫、去空格
+    var idInput = document.getElementById("idCard").value.trim().toUpperCase();
+    var msgDiv = document.getElementById("msg");
+    
+    if (idInput === "") {
+        msgDiv.innerText = "請輸入身分證字號！";
+        return;
+    }
+
+    // 2. 直接去 pdfs 資料夾找有沒有「身分證字號.pdf」這個檔案
+    var pdfUrl = "pdfs/" + idInput + ".pdf";
+
+    // 3. 測試檔案是否存在
+    fetch(pdfUrl)
+        .then(response => {
+            if (response.ok) {
+                msgDiv.style.color = "green";
+                msgDiv.innerText = "查詢成功！正在下載...";
+                // 檔案存在，直接跳轉或下載
+                window.location.href = pdfUrl;
+            } else {
+                // 檔案不存在，代表身分證輸入錯誤或沒這個學生
+                msgDiv.style.color = "red";
+                msgDiv.innerText = "查無此資料，請確認身分證字號是否正確。";
+            }
+        })
+        .catch(error => {
+            msgDiv.style.color = "red";
+            msgDiv.innerText = "系統發生錯誤，請稍後再試。";
+        });
+}
+</script>
+
+</body>
+</html>
